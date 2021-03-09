@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.lunch.dao">
+    <insert id="insertStore" parameterType="com.example.mafia.domain.Room">
+        INSERT INTO STORE (STORE_CODE,STORE_NAME,STORE_WEIGHT,STORE_KIND,STORE_DELIVERY_YN,STORE_PAYCO_YN)
+        VALUES (#{storeCode}, #{storeName}, 1, #{storeKind}, #{storeDeliveryYN}, #{storePaycoYN})
+    </insert>
+    <update id="increaseStoreWeight" parameterType="com.example.mafia.domain.Store">
+        UPDATE STORE
+        SET STORE_WEIGHT = STORE_WEIGHT + 1
+        WHERE STORE_CODE = #{storeCode}
+    </update>
+    <update id="decreaseStoreWeight" parameterType="com.example.mafia.domain.Store">
+        UPDATE STORE
+        SET STORE_WEIGHT = STORE_WEIGHT - 1
+        WHERE STORE_CODE = #{storeCode}
+    </update>
+    <update id="increaseStoreWeightCount" parameterType="com.example.mafia.domain.Store">
+        UPDATE STORE
+        SET STORE_WEIGHT_COUNT = STORE_WEIGHT_COUNT + 1
+        WHERE STORE_CODE = #{storeCode}
+    </update>
+    <update id="decreaseStoreWeightCount" parameterType="com.example.mafia.domain.Store">
+        UPDATE STORE
+        SET STORE_WEIGHT_COUNT = STORE_WEIGHT_COUNT - 1
+        WHERE STORE_CODE = #{storeCode}
+    </update>
+    <select id="selectStoreInfo" parameterType="String" resultType="com.example.mafia.domain.Store">
+        SELECT
+        STORE_CODE AS storeCode
+        ,STORE_NAME AS storeName
+        ,STORE_WEIGHT AS storeWeight
+        ,STORE_WEIGHT_COUNT AS storeWeightCount
+        ,STORE_DELIVERY_YN AS storeDeliveryYN
+        ,STORE_KIND AS storeKind
+        ,STORE_PAYCO_YN AS storePaycoYN
+        ,REG_DTTM AS regDttm
+        FROM STORE
+        WHERE STORE_CODE=#{storeCode}
+    </select>
+    <select id="selectStoreInfoList" resultType="hashmap">
+        SELECT
+        STORE_CODE AS storeCode
+        ,STORE_NAME AS storeName
+        ,STORE_WEIGHT AS storeWeight
+        ,STORE_WEIGHT_COUNT AS storeWeightCount
+        ,STORE_DELIVERY_YN AS storeDeliveryYN
+        ,STORE_KIND AS storeKind
+        ,STORE_PAYCO_YN AS storePaycoYN
+        ,STORE_COMMENT AS storeComment
+        ,REG_DTTM AS regDttm
+        FROM STORE
+    </select>
+</mapper>

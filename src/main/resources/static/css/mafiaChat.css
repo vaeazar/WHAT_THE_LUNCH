@@ -1,0 +1,150 @@
+@import url(//fonts.googleapis.com/earlyaccess/hanna.css);
+
+*{
+    margin:0;
+    padding:0;
+    font-family: sans-serif;
+    font-size: medium;
+    letter-spacing: 1px;
+}
+.container{
+    width: 37.5em;
+    margin: 0 auto;
+    padding: 25px;
+}
+.container h1{
+    text-align: left;
+    padding: 5px 5px 5px 15px;
+    color: #FFBB00;
+    border-left: 3px solid #FFBB00;
+    margin-bottom: 20px;
+    font-size: xxx-large;
+}
+.chatAndList {
+}
+.memberList {
+    margin-left: 1em;
+    background-color: black;
+    width: 5em;
+    height: 10em;
+    overflow: auto;
+    padding: 5px;
+    border: solid darkorange 5px;
+    border-left: 0px;
+}
+.chating{
+    background-color: black;
+    width: 30em;
+    height: 35em;
+    overflow: auto;
+    padding: 5px;
+    border: solid darkorange 5px;
+    float: left;
+}
+.chating .me{
+    color: #FFBB00;
+    text-align: right;
+    word-break: break-all;
+    font-size: 1.0em;
+    padding: 2px;
+    letter-spacing: 1px;
+}
+.chating .others{
+    color: #F6F6F6;
+    text-align: left;
+    font-size: 1.0em;
+    padding: 2px;
+    letter-spacing: 1px;
+}
+.memberList .member{
+    color: #F6F6F6;
+    text-align: left;
+    font-size: 1.0em;
+    padding: 2px;
+    letter-spacing: 1px;
+    width: 100%;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+.chating .newMemberJoin{
+    color: #F6F6F6;
+    text-align: center;
+    word-break: break-all;
+    font-size: 1.0em;
+    padding: 2px;
+    letter-spacing: 1px;
+}
+.chating .me-mafia{
+    color: #d66fff;
+    text-align: right;
+    word-break: break-all;
+    font-size: 1.0em;
+    padding: 2px;
+    letter-spacing: 1px;
+}
+.chating .others-mafia{
+    color: #ff0000;
+    text-align: left;
+    word-break: break-all;
+    font-size: 1.0em;
+    padding: 2px;
+    letter-spacing: 1px;
+}
+.chatting-input {
+    width: 330px;
+    height: 25px;
+}
+#yourMsg{
+    display: none;
+    width: 40em;
+}
+
+#announce{
+    color: pink;
+    font-size: large;
+}
+
+.startBtn {
+    vertical-align: middle;
+}
+
+.voteList {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.voteList-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 50%; /* Could be more or less, depending on screen size */
+    z-index: 2;
+}
+/* The Close Button */
+.voteList-close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+.voteList-close:hover,
+.voteList-close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.voteBtn {
+    min-width: 32px;
+}
