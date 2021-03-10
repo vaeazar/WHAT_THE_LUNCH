@@ -10,10 +10,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class LunchEtcDao {
-    private static final String NAMESPACE = "com.example.lunch.dao.";
+    private static final String NAMESPACE = "com.example.mafia.dao.";
 
     @Autowired
-    @Qualifier("lunchSqlSessionTemplate")
     SqlSession sqlSession;
 
     public void visitLogInsert(Room room) {

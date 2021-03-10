@@ -13,7 +13,6 @@ public class MemberDao {
     private static final String NAMESPACE = "com.example.mafia.dao.";
 
     @Autowired
-    @Qualifier("mafiaSqlSessionTemplate")
     SqlSession sqlSession;
 
     public void insert(Member member) {

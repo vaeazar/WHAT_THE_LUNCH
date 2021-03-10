@@ -15,6 +15,7 @@ public class Room {
   String roomMafiaVoteYN;
   int sessionIdx;
   HashMap<String, Integer> votes;
+  int voteCount;
   HashMap<String, Integer> zombie;
   List<String> mafia;
   HashMap<String, String> jobs;

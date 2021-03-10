@@ -594,7 +594,7 @@ function playerClick(selectPlayerName) {
     playerId : selectPlayerName
   };
   let btnHtml = '';
-  commonAjax('/lunch/BBalGangEDa', param, 'post', function () {
+  commonAjax('/BBalGangEDa', param, 'post', function () {
     btnHtml += "<p>"+selectPlayerName+"님을 선택하셨습니다.</p>";
     $('#memberNameBtn').html(btnHtml);
     $('#modalBtn').remove();
@@ -608,7 +608,7 @@ function mafiaClick(selectPlayerName) {
     playerId : selectPlayerName
   };
   let btnHtml = '';
-  commonAjax('/lunch/mafiaVote', param, 'post', function () {
+  commonAjax('/mafiaVote', param, 'post', function () {
     btnHtml += "<p>"+selectPlayerName+"님을 선택하셨습니다.</p>";
     $('#memberNameBtn').html(btnHtml);
     $('#modalBtn').remove();
@@ -620,7 +620,7 @@ function tempKillBtn() {
   let param = {
     roomId : $('#roomId').val()
   };
-  commonAjax('/lunch/cutOffHerHead', param, 'post', function () {
+  commonAjax('/mafiaKill', param, 'post', function () {
     console.log('재판 완료');
     voteCompFlag = false;
   });
@@ -648,7 +648,7 @@ function tempMafiaKillBtn() {
   let param = {
     roomId : $('#roomId').val()
   };
-  commonAjax('/lunch/mafiaKill', param, 'post', function () {
+  commonAjax('/mafiaKill', param, 'post', function () {
     console.log('처형 완료');
   });
 }

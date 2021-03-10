@@ -74,12 +74,11 @@ function wsEvt() {
           $("#sessionId").val(sessionId);
         }
         let tempHtml = '';
-        tempHtml += '<button onclick="startGame()" id="startBtn" class="startBtn">시작</button>';
-        tempHtml += '<button onclick="startGameMafia()" id="startBtn" class="startBtn">마피아 식별용 시작</button>';
-        tempHtml += '<td><button onclick="voteStart()">재판 개시</button></td>';
-        tempHtml += '<td><button onclick="tempKillBtn()">재판 완료</button></td>';
-        tempHtml += '<td><button onclick="mafiaVote()">마피아 개시</button></td>';
-        tempHtml += '<td><button onclick="tempMafiaKillBtn()">마피아 완료</button></td>';
+        tempHtml += '<button onclick="startGame()" id="startBtn" class="startBtn">추천 받기</button>';
+        tempHtml += '<td><button onclick="voteStart()">투표 개시</button></td>';
+        tempHtml += '<td><button onclick="tempKillBtn()">투표 완료</button></td>';
+        // tempHtml += '<td><button onclick="mafiaVote()">익명 투표 개시</button></td>';
+        // tempHtml += '<td><button onclick="tempMafiaKillBtn()">익명 투표 완료</button></td>';
         if (jsonTemp.isAdmin) {
           $("#chatRoomHeader").append(tempHtml);
         }
@@ -113,33 +112,24 @@ function wsEvt() {
           let target = btnContain.querySelector('.player_' + jsonTemp.outMemberName);
           target.remove();
         }
-      } else if (jsonTemp.type == "resultEqual") {
-        $('#modalBtn').remove();
-        $("#chating").append(
-            "<p class='newMemberJoin' style='color:red;'>투표결과 아무도 처형되지 않습니다.</p>");
-        $("#chating").scrollTop($("#chating")[0].scrollHeight);
-      } else if (jsonTemp.type == "excecuteComplete") {
-        $('#modalBtn').remove();
-        $("#chating").append(
-            "<p class='newMemberJoin' style='color:red;'>" + decodeURI(jsonTemp.memberName,'UTF-8') + " 님이 처형당했습니다.</p>");
-        $("#chating").scrollTop($("#chating")[0].scrollHeight);
-        $('#modalBtn').remove();
-        voteCompFlag = false;
       } else if (jsonTemp.type == "mafiaKillComplete") {
         $('#modalBtn').remove();
         $("#chating").append(
-            "<p class='newMemberJoin' style='color:red;'>" + decodeURI(jsonTemp.memberName,'UTF-8') + " 님이 마피아에게 죽었습니다.</p>");
+            "<p class='newMemberJoin' style='color:#ffffff;'>====================================</p>");
+        $("#chating").append(
+            "<p class='newMemberJoin' style='color:#ffffff;'>투표 결과 : " + decodeURI(jsonTemp.storeName,'UTF-8') + "("+jsonTemp.storeCount+")</p>");
+        $("#chating").append(
+            "<p class='newMemberJoin' style='color:#ffffff;'>====================================</p>");
         $("#chating").scrollTop($("#chating")[0].scrollHeight);
         $('#modalBtn').remove();
         voteCompFlag = false;
       } else if (jsonTemp.type == "adminLeft") {
         let tempHtml = '';
-        tempHtml += '<button onclick="startGame()" id="startBtn" class="startBtn">시작</button>';
-        tempHtml += '<button onclick="startGameMafia()" id="startBtn" class="startBtn">마피아 식별용 시작</button>';
+        tempHtml += '<button onclick="startGame()" id="startBtn" class="startBtn">추천 받기</button>';
         tempHtml += '<td><button onclick="voteStart()">투표 개시</button></td>';
         tempHtml += '<td><button onclick="tempKillBtn()">투표 완료</button></td>';
-        tempHtml += '<td><button onclick="mafiaVote()">마피아 개시</button></td>';
-        tempHtml += '<td><button onclick="tempMafiaKillBtn()">마피아 완료</button></td>';
+        // tempHtml += '<td><button onclick="mafiaVote()">익명 투표 개시</button></td>';
+        // tempHtml += '<td><button onclick="tempMafiaKillBtn()">익명 투표 완료</button></td>';
         if (jsonTemp.isAdmin) {
           $("#chatRoomHeader").append(tempHtml);
         }
@@ -152,69 +142,34 @@ function wsEvt() {
         // commonAjax('/getMafiaList', param, 'post', function () {
         // });
       } else if (jsonTemp.type == 'gameStart') {
-        let myJob = jsonTemp.myJob;
-        document.querySelector('#myJob').value = myJob;
-        if (myJob == 'mafia') {
-          $("#chating").append(
-              "<p class='newMemberJoin' style='color:red;'>게임이 시작되었습니다.</p>");
-          $("#chating").append(
-              "<p class='newMemberJoin' style='color:red;'>당신의 직업은 마피아입니다.</p>");
-          $("#chating").scrollTop($("#chating")[0].scrollHeight);
-          $("#uiBtn").prepend(
-              '<td id="mafiaChatTd"><input type="checkbox" id="mafiaChat"></td>');
-          $("#uiBtn").prepend(
-              '<th id="mafiaChatTh">마피아 챗</th>');
-        } else if (myJob == 'cop') {
-          $("#chating").append(
-              "<p class='newMemberJoin' style='color:red;'>게임이 시작되었습니다.</p>");
-          $("#chating").append(
-              "<p class='newMemberJoin' style='color:red;'>당신의 직업은 경찰입니다.</p>");
-          $("#chating").scrollTop($("#chating")[0].scrollHeight);
-        } else if (myJob == 'doctor') {
-          $("#chating").append(
-              "<p class='newMemberJoin' style='color:red;'>게임이 시작되었습니다.</p>");
-          $("#chating").append(
-              "<p class='newMemberJoin' style='color:red;'>당신의 직업은 의사입니다.</p>");
-          $("#chating").scrollTop($("#chating")[0].scrollHeight);
-        } else {
-          $("#chating").append(
-              "<p class='newMemberJoin' style='color:red;'>게임이 시작되었습니다.</p>");
-          $("#chating").append(
-              "<p class='newMemberJoin' style='color:red;'>당신의 직업은 시민입니다.</p>");
-          $("#chating").scrollTop($("#chating")[0].scrollHeight);
-        }
+        $('#recommBtn').remove();
+        let recommMenu = JSON.parse(jsonTemp.storeList);
+        let recommHtml = '';
+        $("#recommListContainer").html('');
+        recommMenu.forEach(function(val,idx,arr) {
+          recommHtml +=
+              "<p class='newMemberJoin' style='color:#ffffff;'>" + val.storeComment + " "
+                              + "<span style='color: #ffe700;'>" + val.storeName + "</span></p>";
+        });
+        $("#recommListContainer").html(recommHtml)
+        voteOpen(recommMenu)
+        $("#chating").scrollTop($("#chating")[0].scrollHeight);
+        openRecommList();
+        let tempHtml = '';
+        tempHtml += '<td><button id="recommBtn" onclick="openRecommList()">추천 목록</button></td>';
+        $("#uiBtn2").append(tempHtml);
       } else if (jsonTemp.type == "voteStarted") {
         $('#modalBtn').remove();
         let tempHtml = '';
         tempHtml += '<td><button id="modalBtn" onclick="tempVoteClick()">투표</button></td>';
-        $("#uiBtn").append(tempHtml);
+        $("#uiBtn2").append(tempHtml);
         $("#chating").append(
-            "<p class='newMemberJoin' style='color:red;'>재판이 시작되었습니다.</p>");
+            "<p class='newMemberJoin' style='color:red;'>투표가 시작되었습니다.</p>");
         $("#chating").scrollTop($("#chating")[0].scrollHeight);
-      } else if (jsonTemp.type == "zombie_voteStarted") {
+      } else if (jsonTemp.type == "voteComplete") {
         $("#chating").append(
-            "<p class='newMemberJoin' style='color:red;'>재판이 시작되었습니다.</p>");
+            "<p class='newMemberJoin' style='color:#abff93;'>" + decodeURI(jsonTemp.voteCount,'UTF-8') + " 명이 투표하였습니다.</p>");
         $("#chating").scrollTop($("#chating")[0].scrollHeight);
-      } else if (jsonTemp.type == "mafiaVoteStarted") {
-        $('#modalBtn').remove();
-        let tempHtml = '';
-        let myJob = $('#myJob').val();
-        if (myJob == 'mafia') {
-          tempHtml += '<td><button id="modalBtn" onclick="tempVoteClick()">투표</button></td>';
-          $("#uiBtn").append(tempHtml);
-          $("#chating").append(
-              "<p class='newMemberJoin' style='color:red;'>암살 투표가 시작되었습니다.</p>");
-          $("#chating").scrollTop($("#chating")[0].scrollHeight);
-        }
-      } else if (jsonTemp.type == "zombie_mafiaVoteStarted") {
-        $('#modalBtn').remove();
-        let tempHtml = '';
-        let myJob = $('#myJob').val();
-        if (myJob == 'mafia') {
-          $("#chating").append(
-              "<p class='newMemberJoin' style='color:red;'>암살 투표가 시작되었습니다.</p>");
-          $("#chating").scrollTop($("#chating")[0].scrollHeight);
-        }
       } else if (jsonTemp.type == "fail") {
         if (jsonTemp.failReason == 'nameExist') {
           $("#yourMsg").hide();
@@ -380,21 +335,10 @@ function backToRoomList() {
 
 function startGame() {
   var roomId = {roomId: $('#roomId').val()};
-  var memberCnt = $(".member").length;
-  //테스트 위해서 8명 이하여도 게임 시작되게 임시로 수정
-  /*if (memberCnt<8) {
-    $("#chating").append("<p class='game-not-start' style='color:white;'>게임 시작에는 8명 이상이 필요합니다!</p>");
-  } else {
-    commonAjax('/setRoomStart', roomId, 'post', function () {
-      $("#startBtn").remove();
-    });
-    showYourJob();
-  }*/
 
   commonAjax('/setRoomStart', roomId, 'post', function () {
-    $("#startBtn").remove();
+    //$("#startBtn").remove();
   });
-  //showYourJob();
 
   var option;
   option = {
@@ -585,17 +529,12 @@ function morning() {
 function election() {
 
 }
-function voteOpen() {
-  let roomId = {roomId: $('#roomId').val()};
-  commonAjax('/getMemberNames', roomId, 'post', function (result) {
-    let tempJson = JSON.parse(result);
-    let tempList = tempJson.memberList;
-    let btnHtml = '';
-    tempList.forEach(function (e,i,a) {
-      btnHtml += "<button onclick='playerClick(\""+e+"\")' class='voteBtn player_"+e+"'>"+e+"</button>";
-    });
-    $('#memberNameBtn').html(btnHtml);
+function voteOpen(recommMenu) {
+  let btnHtml = '';
+  recommMenu.forEach(function(val,idx,arr) {
+    btnHtml += "<p><button onclick='playerClick(\""+val.storeName+"\")' class='voteBtn player_"+val.storeName+"'>"+val.storeName+"</button></p>";
   });
+  $('#memberNameBtn').html(btnHtml);
 }
 
 function mafiaVoteOpen() {
@@ -618,7 +557,7 @@ function playerClick(selectPlayerName) {
   };
   let btnHtml = '';
   commonAjax('/BBalGangEDa', param, 'post', function () {
-    btnHtml += "<p>"+selectPlayerName+"님을 선택하셨습니다.</p>";
+    btnHtml += "<p>투표 : "+selectPlayerName+"</p>";
     $('#memberNameBtn').html(btnHtml);
     $('#modalBtn').remove();
     voteCompFlag = true;
@@ -643,8 +582,8 @@ function tempKillBtn() {
   let param = {
     roomId : $('#roomId').val()
   };
-  commonAjax('/cutOffHerHead', param, 'post', function () {
-    console.log('재판 완료');
+  commonAjax('/mafiaKill', param, 'post', function () {
+    console.log('투표 완료');
     voteCompFlag = false;
   });
 }
@@ -672,7 +611,7 @@ function tempMafiaKillBtn() {
     roomId : $('#roomId').val()
   };
   commonAjax('/mafiaKill', param, 'post', function () {
-    console.log('처형 완료');
+    console.log('투표 완료');
   });
 }
 

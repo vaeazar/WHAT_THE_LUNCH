@@ -11,6 +11,11 @@
         SET ROOM_STATUS = #{roomStatus}
         WHERE ROOM_ID = #{roomId}
     </update>
+    <update id="changeRoomSessionIndex" parameterType="com.example.mafia.domain.Room">
+        UPDATE room
+        SET SESSION_IDX = #{sessionIdx}
+        WHERE ROOM_ID = #{roomId}
+    </update>
     <update id="decreaseRoomCount" parameterType="com.example.mafia.domain.Room">
         UPDATE room
         SET ROOM_COUNT = ROOM_COUNT - 1
@@ -59,6 +64,7 @@
             ,ROOM_NAME AS roomName
             ,ROOM_STATUS AS roomStatus
             ,ROOM_COUNT AS roomCount
+            ,SESSION_IDX AS sessionIdx
         FROM room
         WHERE ROOM_ID=#{roomId}
     </select>

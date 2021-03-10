@@ -20,18 +20,26 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function tempVoteClick() {
-  voteOpen();
   var modal = document.getElementById('voteList');
   modal.style.display = "block";
 }
 
 function mafiaVoteClick() {
-  mafiaVoteOpen();
   var modal = document.getElementById('voteList');
   modal.style.display = "block";
 }
 
 function closeVoteList() {
   var modal = document.getElementById('voteList');
+  modal.style.display = "none";
+}
+
+function openRecommList() {
+  var modal = document.getElementById('recommList');
+  modal.style.display = "block";
+}
+
+function closeRecommList() {
+  var modal = document.getElementById('recommList');
   modal.style.display = "none";
 }

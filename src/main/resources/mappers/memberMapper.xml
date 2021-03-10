@@ -3,8 +3,8 @@
 
 <mapper namespace="com.example.mafia.dao">
     <insert id="memberInsert" parameterType="com.example.mafia.domain.Member">
-        INSERT INTO member (MEMBER_ID,MEMBER_NAME,MEMBER_ADMIN_YN,MEMBER_ROOM_ID,MEMBER_STATUS)
-        VALUES (#{memberId}, #{memberName}, #{memberAdminYN}, #{memberRoomId}, #{memberStatus})
+        INSERT INTO member (MEMBER_ID,MEMBER_NAME,MEMBER_ADMIN_YN,MEMBER_ROOM_ID,MEMBER_STATUS,SESSION_IDX)
+        VALUES (#{memberId}, #{memberName}, #{memberAdminYN}, #{memberRoomId}, #{memberStatus}, #{sessionIdx})
     </insert>
     <update id="changeMemberStatus" parameterType="com.example.mafia.domain.Member">
         UPDATE member
@@ -41,6 +41,7 @@
             ,MEMBER_ROOM_ID AS memberRoomId
             ,MEMBER_STATUS AS memberStatus
             ,MEMBER_JOB AS memberJob
+            ,SESSION_IDX AS sessionIdx
         FROM member
         WHERE MEMBER_ID=#{memberId}
     </select>
@@ -60,6 +61,11 @@
         SELECT
             MEMBER_ID AS memberId
             ,MEMBER_NAME AS memberName
+            ,MEMBER_ADMIN_YN AS memberAdminYN
+            ,MEMBER_ROOM_ID AS memberRoomId
+            ,MEMBER_STATUS AS memberStatus
+            ,MEMBER_JOB AS memberJob
+            ,SESSION_IDX AS sessionIdx
         FROM member
         WHERE MEMBER_ROOM_ID = #{memberRoomId}
         ORDER BY NO ASC

@@ -8,4 +8,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class MafiaMessage {
   private String userId;
   private String message;
+  private String remoteIp;
+  private String localIp;
 }

@@ -32,7 +32,6 @@
 
     <div id="yourName">
         <table class="inputTable">
-
             <tr>
                 <th>사용자명</th>
                 <td><input type="text" name="userName" id="userName"></td>
@@ -49,7 +48,7 @@
             </tr>
         </table>
         <table class="inputTable">
-            <tr>
+            <tr id="uiBtn2">
                 <td>메뉴</td>
                 <td><button onclick="cleanChatSpace()">모든 채팅 삭제</button></td>
                 <td><button onclick="backToRoomList()" id="backBtn">나가기</button></td>
@@ -73,6 +72,14 @@
                 <td><input type="radio" id="othersChatColor5" name="othersChatColor" value="white" checked><label for="othersChatColor5">하양</label></td>
             </tr>
         </table>
+    </div>
+    <div class="recommList" id="recommList" onclick="closeRecommList()">
+        <div class="recommList-content">
+            <span class="recommList-close">&times;</span>
+            <p style="color: #ffffff;">추천 리스트</p>
+            <p style="color: #ffffff;">─────────────</p>
+            <p id="recommListContainer">Some text in the Modal..</p>
+        </div>
     </div>
     <div class="voteList" id="voteList" onclick="closeVoteList()">
         <div class="voteList-content">

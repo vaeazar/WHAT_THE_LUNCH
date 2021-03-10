@@ -12,7 +12,6 @@ public class RoomDao {
     private static final String NAMESPACE = "com.example.mafia.dao.";
 
     @Autowired
-    @Qualifier("mafiaSqlSessionTemplate")
     SqlSession sqlSession;
 
     public void insert(Room room) {
@@ -37,6 +36,10 @@ public class RoomDao {
 
     public void changeRoomStatus(Room room) {
         sqlSession.update(NAMESPACE + "changeRoomStatus", room);
+    }
+
+    public void changeRoomSessionIndex(Room room) {
+        sqlSession.update(NAMESPACE + "changeRoomSessionIndex", room);
     }
 
     public void decreaseRoomCount(String roomId) {

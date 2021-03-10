@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="container">
-    <h1>Mafia In Rifle</h1>
+    <h1>WHAT THE LUNCH!!!</h1>
     <div id="roomContainer" class="roomContainer">
         <table class="roomList">
             <thead>
