@@ -29,8 +29,8 @@
                 <th><input type="text" name="userId" id="userId"></th>
             </tr>
             <tr>
-                <th>방 제목</th>
-                <th><input type="text" name="roomName" id="roomName"></th>
+                <th>팀 명</th>
+                <th><input type="text" name="roomName" id="roomName" placeholder="팀 명을 기준으로 타게팅 됩니다. ex) 최근 방문 제외"></th>
                 <th><button id="createRoom">방 만들기</button></th>
             </tr>
         </table>

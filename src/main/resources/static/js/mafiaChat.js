@@ -73,14 +73,32 @@ function wsEvt() {
         if (sessionId != '') {
           $("#sessionId").val(sessionId);
         }
-        let tempHtml = '';
-        tempHtml += '<button onclick="startGame()" id="startBtn" class="startBtn">추천 받기</button>';
-        tempHtml += '<td><button onclick="voteStart()">투표 개시</button></td>';
-        tempHtml += '<td><button onclick="tempKillBtn()">투표 완료</button></td>';
-        // tempHtml += '<td><button onclick="mafiaVote()">익명 투표 개시</button></td>';
-        // tempHtml += '<td><button onclick="tempMafiaKillBtn()">익명 투표 완료</button></td>';
         if (jsonTemp.isAdmin) {
-          $("#chatRoomHeader").append(tempHtml);
+          $('.adminTable').show();
+          let tempHtml = '<tr>';
+          tempHtml += '<td style="color: black;"><input type="checkbox" id="visitStore">최근 제외</td>';
+          tempHtml += '<td><button onclick="startGame()" id="startBtn" class="startBtn">추천 받기</button></td>';
+          tempHtml += '<td><button onclick="voteStart()">투표 개시</button></td>';
+          tempHtml += '<td><button onclick="tempKillBtn()">투표 완료</button></td>';
+          // tempHtml += '<td><button onclick="mafiaVote()">익명 투표 개시</button></td>';
+          // tempHtml += '<td><button onclick="tempMafiaKillBtn()">익명 투표 완료</button></td>';
+          tempHtml += '</tr>';
+          tempHtml += '<tr>';
+          tempHtml += '<td style="color: black;">국가</td>';
+          tempHtml += '<td style="color: black;"><input type="checkbox" class="nationCheck" value="korea">한식</td>';
+          tempHtml += '<td style="color: black;"><input type="checkbox" class="nationCheck" value="china">중식</td>';
+          tempHtml += '<td style="color: black;"><input type="checkbox" class="nationCheck" value="japan">일식</td>';
+          tempHtml += '<td style="color: black;"><input type="checkbox" class="nationCheck" value="etc">기타</td>';
+          tempHtml += '</tr>';
+          tempHtml += '<tr>';
+          tempHtml += '<td style="color: black;">종류</td>';
+          tempHtml += '<td style="color: black;"><input type="checkbox" class="kindCheck" value="rice">밥</td>';
+          tempHtml += '<td style="color: black;"><input type="checkbox" class="kindCheck" value="noodle">면</td>';
+          tempHtml += '<td style="color: black;"><input type="checkbox" class="kindCheck" value="soup">국/찌개</td>';
+          tempHtml += '<td style="color: black;"><input type="checkbox" class="kindCheck" value="snack">분식</td>';
+          tempHtml += '<td style="color: black;"><input type="checkbox" class="kindCheck" value="etc">기타</td>';
+          tempHtml += '</tr>';
+          $("#uiBtnAdmin").append(tempHtml);
         }
       } else if (jsonTemp.type == "memberList") {
         let chatColor = $('input[name=othersChatColor]:checked').val();
@@ -110,7 +128,7 @@ function wsEvt() {
         if (!voteCompFlag) {
           let btnContain = document.querySelector('#memberNameBtn');
           let target = btnContain.querySelector('.player_' + jsonTemp.outMemberName);
-          target.remove();
+          if (target != undefined) target.remove();
         }
       } else if (jsonTemp.type == "mafiaKillComplete") {
         $('#modalBtn').remove();
@@ -124,14 +142,36 @@ function wsEvt() {
         $('#modalBtn').remove();
         voteCompFlag = false;
       } else if (jsonTemp.type == "adminLeft") {
-        let tempHtml = '';
-        tempHtml += '<button onclick="startGame()" id="startBtn" class="startBtn">추천 받기</button>';
+        $('.adminTable').show();
+        let tempHtml = '<tr>';
+        tempHtml += '<td style="color: black;"><input type="checkbox" id="visitStore">최근 제외</td>';
+        tempHtml += '<td><button onclick="startGame()" id="startBtn" class="startBtn">추천 받기</button></td>';
         tempHtml += '<td><button onclick="voteStart()">투표 개시</button></td>';
         tempHtml += '<td><button onclick="tempKillBtn()">투표 완료</button></td>';
         // tempHtml += '<td><button onclick="mafiaVote()">익명 투표 개시</button></td>';
         // tempHtml += '<td><button onclick="tempMafiaKillBtn()">익명 투표 완료</button></td>';
+        tempHtml += '</tr>';
+        tempHtml += '<tr>';
+        tempHtml += '<td style="color: black;">국가</td>';
+        tempHtml += '<td style="color: black;"><input type="checkbox" class="nationCheck" value="korea">한식</td>';
+        tempHtml += '<td style="color: black;"><input type="checkbox" class="nationCheck" value="china">중식</td>';
+        tempHtml += '<td style="color: black;"><input type="checkbox" class="nationCheck" value="japan">일식</td>';
+        tempHtml += '<td style="color: black;"><input type="checkbox" class="nationCheck" value="etc">기타</td>';
+        // tempHtml += '<td><button onclick="mafiaVote()">익명 투표 개시</button></td>';
+        // tempHtml += '<td><button onclick="tempMafiaKillBtn()">익명 투표 완료</button></td>';
+        tempHtml += '</tr>';
+        tempHtml += '<tr>';
+        tempHtml += '<td style="color: black;">종류</td>';
+        tempHtml += '<td style="color: black;"><input type="checkbox" class="kindCheck" value="rice">밥</td>';
+        tempHtml += '<td style="color: black;"><input type="checkbox" class="kindCheck" value="noodle">면</td>';
+        tempHtml += '<td style="color: black;"><input type="checkbox" class="kindCheck" value="soup">국/찌개</td>';
+        tempHtml += '<td style="color: black;"><input type="checkbox" class="kindCheck" value="snack">분식</td>';
+        tempHtml += '<td style="color: black;"><input type="checkbox" class="kindCheck" value="etc">기타</td>';
+        // tempHtml += '<td><button onclick="mafiaVote()">익명 투표 개시</button></td>';
+        // tempHtml += '<td><button onclick="tempMafiaKillBtn()">익명 투표 완료</button></td>';
+        tempHtml += '</tr>';
         if (jsonTemp.isAdmin) {
-          $("#chatRoomHeader").append(tempHtml);
+          $("#uiBtnAdmin").append(tempHtml);
         }
       } else if (jsonTemp.type == "roomIsStart") {
         //timer(5,0,'낮 시간');
@@ -147,9 +187,17 @@ function wsEvt() {
         let recommHtml = '';
         $("#recommListContainer").html('');
         recommMenu.forEach(function(val,idx,arr) {
-          recommHtml +=
-              "<p class='newMemberJoin' style='color:#ffffff;'>" + val.storeComment + " "
-                              + "<span style='color: #ffe700;'>" + val.storeName + "</span></p>";
+          if (val.storeNaver != '') {
+            recommHtml +=
+                "<p class='newMemberJoin' style='color:#ffffff;'>" + val.storeComment + " "
+                + "<span class='recommElement recommNaver' onclick='openInNewTab(\""+val.storeNaver+"\")'>"
+                + val.storeName + "</span></p>";
+          } else {
+            recommHtml +=
+                "<p class='newMemberJoin' style='color:#ffffff;'>" + val.storeComment + " "
+                + "<span class='recommElement'>"
+                + val.storeName + "</span></p>";
+          }
         });
         $("#recommListContainer").html(recommHtml)
         voteOpen(recommMenu)
@@ -334,9 +382,38 @@ function backToRoomList() {
 }
 
 function startGame() {
-  var roomId = {roomId: $('#roomId').val()};
+  var option = '';
+  var nation = '';
+  var kind = '';
+  $("input[class=nationCheck]:checked").each(function() {
+    nation += $(this).val();
+    nation += '|';
+  });
+  nation = nation.substring(0,nation.length-1);
+  $("input[class=kindCheck]:checked").each(function() {
+    kind += $(this).val();
+    kind += '|';
+  });
+  kind = kind.substring(0,kind.length-1);
+  if ($('#visitStore').prop("checked")) {
+    option = {
+      roomId: $('#roomId').val(),
+      roomName: $('#roomName').val(),
+      nation: nation,
+      kind: kind,
+      weekExcept: 'Y'
+    };
+  } else {
+    option = {
+      roomId: $('#roomId').val(),
+      roomName: $('#roomName').val(),
+      nation: nation,
+      kind: kind,
+      weekExcept: 'N'
+    };
+  }
 
-  commonAjax('/setRoomStart', roomId, 'post', function () {
+  commonAjax('/setRoomStart', option, 'post', function () {
     //$("#startBtn").remove();
   });
 
@@ -532,7 +609,7 @@ function election() {
 function voteOpen(recommMenu) {
   let btnHtml = '';
   recommMenu.forEach(function(val,idx,arr) {
-    btnHtml += "<p><button onclick='playerClick(\""+val.storeName+"\")' class='voteBtn player_"+val.storeName+"'>"+val.storeName+"</button></p>";
+    btnHtml += "<p><button onclick='clickStore(\""+val.storeName+"\")' class='voteBtn player_"+val.storeName+"'>"+val.storeName+"</button></p>";
   });
   $('#memberNameBtn').html(btnHtml);
 }
@@ -544,34 +621,20 @@ function mafiaVoteOpen() {
     let tempList = tempJson.memberList;
     let btnHtml = '';
     tempList.forEach(function (e,i,a) {
-      btnHtml += "<button onclick='playerClick(\""+e+"\")' class='voteBtn player_"+e+"'>"+e+"</button>";
+      btnHtml += "<button onclick='clickStore(\""+e+"\")' class='voteBtn player_"+e+"'>"+e+"</button>";
     });
     $('#memberNameBtn').html(btnHtml);
   });
 }
 
-function playerClick(selectPlayerName) {
+function clickStore(storeName) {
   let param = {
     roomId : $('#roomId').val(),
-    playerId : selectPlayerName
+    storeName : storeName
   };
   let btnHtml = '';
-  commonAjax('/BBalGangEDa', param, 'post', function () {
-    btnHtml += "<p>투표 : "+selectPlayerName+"</p>";
-    $('#memberNameBtn').html(btnHtml);
-    $('#modalBtn').remove();
-    voteCompFlag = true;
-  });
-}
-
-function mafiaClick(selectPlayerName) {
-  let param = {
-    roomId : $('#roomId').val(),
-    playerId : selectPlayerName
-  };
-  let btnHtml = '';
-  commonAjax('/mafiaVote', param, 'post', function () {
-    btnHtml += "<p>"+selectPlayerName+"님을 선택하셨습니다.</p>";
+  commonAjax('/clickStore', param, 'post', function () {
+    btnHtml += "<p>투표 : "+storeName+"</p>";
     $('#memberNameBtn').html(btnHtml);
     $('#modalBtn').remove();
     voteCompFlag = true;
@@ -595,6 +658,7 @@ function voteStart() {
     roomId: $('#roomId').val()
   }
   socketVar.send(JSON.stringify(option));
+  commonAjax('/voteStart', option, 'post', function () {});
 }
 
 function mafiaVote() {

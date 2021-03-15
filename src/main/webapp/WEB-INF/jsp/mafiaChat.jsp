@@ -54,6 +54,13 @@
                 <td><button onclick="backToRoomList()" id="backBtn">나가기</button></td>
             </tr>
         </table>
+        <div class="adminTable">
+        <table class="inputTable" id="uiBtnAdmin">
+            <tr>
+                <td>관리자 메뉴</td>
+            </tr>
+        </table>
+        </div>
         <table class="chatColorTable">
             <tr>
                 <th>내 채팅 색</th>

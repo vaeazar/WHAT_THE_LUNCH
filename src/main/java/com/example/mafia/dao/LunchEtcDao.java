@@ -2,6 +2,8 @@ package com.example.mafia.dao;
 
 import com.example.mafia.domain.Room;
 import com.example.mafia.domain.Store;
+import com.example.mafia.domain.Target;
+import com.example.mafia.domain.VisitLog;
 import java.util.List;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +17,8 @@ public class LunchEtcDao {
     @Autowired
     SqlSession sqlSession;
 
-    public void visitLogInsert(Room room) {
-        sqlSession.insert(NAMESPACE + "visitLogInsert", room);
+    public void insertVisitLog(VisitLog visitLog) {
+        sqlSession.insert(NAMESPACE + "insertVisitLog", visitLog);
     }
 
     public void selectWeekVistedStore(String roomId) {
@@ -55,12 +57,16 @@ public class LunchEtcDao {
         sqlSession.delete(NAMESPACE+"deleteAllRoom");
     }
 
-    public Room selectRoomInfo(String roomId) {
-        return sqlSession.selectOne(NAMESPACE+"selectRoomInfo",roomId);
+    public Store selectStoreInfoByName(String storeName) {
+        return sqlSession.selectOne(NAMESPACE+"selectStoreInfoByName",storeName);
     }
 
-    public List<Store> selectStoreInfoList() {
-        return sqlSession.selectList(NAMESPACE+"selectStoreInfoList");
+    public List<Store> selectStoreInfoList(Target target) {
+        return sqlSession.selectList(NAMESPACE+"selectStoreInfoList", target);
+    }
+
+    public List<Store> selectStoreInfoListExceptWeek(String roomName) {
+        return sqlSession.selectList(NAMESPACE+"selectStoreInfoListExceptWeek",roomName);
     }
 
     public int selectRoomCount(String roomId) {

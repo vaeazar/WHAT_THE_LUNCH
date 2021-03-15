@@ -33,13 +33,78 @@
         ,STORE_WEIGHT AS storeWeight
         ,STORE_WEIGHT_COUNT AS storeWeightCount
         ,STORE_DELIVERY_YN AS storeDeliveryYN
-        ,STORE_KIND AS storeKind
+        ,STORE_NATION AS storeNation
+        ,STORE_KIND1 AS storeKind1
+        ,STORE_KIND2 AS storeKind2
+        ,STORE_KIND3 AS storeKind3
         ,STORE_PAYCO_YN AS storePaycoYN
         ,REG_DTTM AS regDttm
         FROM STORE
         WHERE STORE_CODE=#{storeCode}
     </select>
-    <select id="selectStoreInfoList" resultType="com.example.mafia.domain.Store">
+    <select id="selectStoreInfoByName" parameterType="String" resultType="com.example.mafia.domain.Store">
+        SELECT
+        STORE_CODE AS storeCode
+        ,STORE_NAME AS storeName
+        ,STORE_WEIGHT AS storeWeight
+        ,STORE_WEIGHT_COUNT AS storeWeightCount
+        ,STORE_DELIVERY_YN AS storeDeliveryYN
+        ,STORE_NATION AS storeNation
+        ,STORE_KIND1 AS storeKind1
+        ,STORE_KIND2 AS storeKind2
+        ,STORE_KIND3 AS storeKind3
+        ,STORE_PAYCO_YN AS storePaycoYN
+        ,REG_DTTM AS regDttm
+        FROM STORE
+        WHERE STORE_NAME=#{storeName}
+    </select>
+    <select id="selectStoreInfoList" parameterType="com.example.mafia.domain.Target" resultType="com.example.mafia.domain.Store">
+        SELECT
+        STORE_CODE AS storeCode
+        ,STORE_NAME AS storeName
+        ,STORE_WEIGHT AS storeWeight
+        ,STORE_WEIGHT_COUNT AS storeWeightCount
+        ,STORE_DELIVERY_YN AS storeDeliveryYN
+        ,STORE_NATION AS storeNation
+        ,STORE_KIND1 AS storeKind1
+        ,STORE_KIND2 AS storeKind2
+        ,STORE_KIND3 AS storeKind3
+        ,STORE_PAYCO_YN AS storePaycoYN
+        ,STORE_COMMENT AS storeComment
+        ,STORE_NAVER AS storeNaver
+        ,REG_DTTM AS regDttm
+        FROM STORE
+        WHERE 1=1
+        <if test='weekExcept=="Y"'>
+            AND STORE_CODE NOT IN
+            (
+            SELECT STORE_CODE
+            FROM VISIT_LOG
+            WHERE VISIT_TEAM = #{roomName}
+            AND REG_DTTM BETWEEN DATE_ADD(NOW(), interval -7 day) AND NOW()
+            )
+        </if>
+        <if test='!nationAndKinds.isEmpty()'>
+            AND 1 = (
+            CASE
+            WHEN STORE_NATION IN
+            <foreach collection="nationAndKinds" item="item" separator=" , " open="(" close=")">#{item}</foreach>
+            THEN 1
+            WHEN STORE_KIND1 IN
+            <foreach collection="nationAndKinds" item="item" separator=" , " open="(" close=")">#{item}</foreach>
+            THEN 1
+            WHEN STORE_KIND2 IN
+            <foreach collection="nationAndKinds" item="item" separator=" , " open="(" close=")">#{item}</foreach>
+            THEN 1
+            WHEN STORE_KIND3 IN
+            <foreach collection="nationAndKinds" item="item" separator=" , " open="(" close=")">#{item}</foreach>
+            THEN 1
+            ELSE 0
+            END
+            )
+        </if>
+    </select>
+    <select id="selectStoreInfoListExceptWeek" parameterType="com.example.mafia.domain.Store" resultType="com.example.mafia.domain.Store">
         SELECT
         STORE_CODE AS storeCode
         ,STORE_NAME AS storeName
@@ -49,7 +114,16 @@
         ,STORE_KIND AS storeKind
         ,STORE_PAYCO_YN AS storePaycoYN
         ,STORE_COMMENT AS storeComment
+        ,STORE_NAVER AS storeNaver
         ,REG_DTTM AS regDttm
         FROM STORE
+        WHERE
+        STORE_CODE NOT IN
+        (
+        SELECT STORE_CODE
+        FROM VISIT_LOG
+        WHERE VISIT_TEAM = #{roomName}
+        AND REG_DTTM BETWEEN DATE_ADD(NOW(), interval -7 day) AND DATE_ADD(NOW(), interval -1 day)
+        )
     </select>
 </mapper>

@@ -11,9 +11,13 @@ public class Store implements Serializable {
   String storeName;
   int storeWeight;
   int storeWeightCount;
-  String storeKind;
+  String storeNation;
+  String storeKind1;
+  String storeKind2;
+  String storeKind3;
   String storeDeliveryYN;
   String storePaycoYN;
   String storeComment;
+  String storeNaver;
   String regDttm;
 }

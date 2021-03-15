@@ -189,3 +189,18 @@
 #recommListContainer {
     min-width: 32px;
 }
+
+.recommElement {
+    color: #ffe700;
+}
+
+.recommNaver:hover,
+.recommNaver:focus {
+    color: #fffcd3;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.adminTable {
+    display: none;
+}

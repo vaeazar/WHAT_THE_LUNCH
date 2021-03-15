@@ -7,9 +7,8 @@ import com.example.mafia.domain.MafiaMessage;
 import com.example.mafia.domain.Member;
 import com.example.mafia.domain.Room;
 import com.example.mafia.domain.Store;
+import com.example.mafia.domain.Target;
 import com.example.mafia.repository.MessageMongoDBRepository;
-import com.example.mafia.util.CommonUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -19,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -65,6 +63,7 @@ public class SocketHandler extends TextWebSocketHandler {
       String jsonGetSessionId = (String) obj.get("sessionId");
       HashMap<String, Object> temp = new HashMap<>();
       Room roomInfo = roomDao.selectRoomInfo(jsonGetRoomId);
+      boolean mongoFlag = false;
       if (jsonGetType.equals("roomIsStart")) {
         roomInfo.setRoomId(jsonGetRoomId);
         roomInfo.setRoomStatus("start");
@@ -86,6 +85,7 @@ public class SocketHandler extends TextWebSocketHandler {
         startObj.put("type", "mafiaVoteStarted");
         messageSend(jsonGetRoomId, startObj);
       } else if (rls.size() > 0) {
+        mongoFlag = true;
         Member memberInfo = memberDao.selectMemberInfo(jsonGetSessionId);
         String senderAlive = memberInfo.getMemberStatus();
         temp = rls.get(roomInfo.getSessionIdx());
@@ -113,12 +113,15 @@ public class SocketHandler extends TextWebSocketHandler {
         }
       }
 
-      MafiaMessage sendData = new MafiaMessage();
-      sendData.setUserId(obj.get("userId").toString());
-      sendData.setMessage(obj.get("msg").toString());
-      sendData.setRemoteIp(session.getRemoteAddress().toString());
-      sendData.setLocalIp(session.getLocalAddress().toString());
-      messageMongoDBRepository.insert(sendData);
+      if (mongoFlag) {
+        MafiaMessage sendData = new MafiaMessage();
+        sendData.setUserId(jsonGetSessionId);
+        sendData.setMessage(obj.get("msg").toString());
+        sendData.setRoomId(jsonGetRoomId);
+        sendData.setRemoteIp(session.getRemoteAddress().toString());
+        sendData.setLocalIp(session.getLocalAddress().toString());
+        messageMongoDBRepository.insert(sendData);
+      }
 
       for (String key : sessionMap.keySet()) {
         WebSocketSession wss = sessionMap.get(key);
@@ -221,106 +224,6 @@ public class SocketHandler extends TextWebSocketHandler {
     messageSend(roomId,listObj);
   }
 
-
-
-//    @Override
-//    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-//      //소켓 연결
-//      super.afterConnectionEstablished(session);
-//      //sessionMap.put(session.getId(), session);
-//      boolean flag = false;
-//      JSONObject obj = new JSONObject();
-//      JSONObject listObj = new JSONObject();
-//      String url = session.getUri().toString();
-//      System.out.println(url);
-//      String tempUrlString[] = url.split("/chating/")[1].split("_");
-//      String roomId = "";
-//      String userName = "";
-//      if (tempUrlString.length > 1) {
-//        roomId = url.split("/chating/")[1].split("_")[0];
-//        userName = URLDecoder.decode(url.split("/chating/")[1].split("_")[1],"UTF-8");
-//      } else {
-//        roomId = "";
-//        userName = "";
-//      }
-//      int idx = rls.size(); //방의 사이즈를 조사한다.
-//      Room roomInfo = roomDao.selectRoomInfo(roomId);
-//      if ()
-//        if (rls.size() > 0) {
-//          for (int i = 0; i < rls.size(); i++) {
-//            String getRoomId = (String) rls.get(i).get("roomId");
-//            if (getRoomId.equals(roomId)) {
-//              flag = true;
-//              idx = i;
-//              break;
-//            }
-//          }
-//        }
-//    if (flag) { //존재하는 방이라면 세션만 추가한다.
-//    JSONObject failObj = new JSONObject();
-//    HashMap<String, Object> map = rls.get(idx);
-//    HashMap<String, String> memberList = (HashMap<String, String>) rls.get(idx).get("memberList");
-//    String roomStatus = ObjectUtils.isEmpty(map.get("roomStatus")) == true ? "start" : map.get("roomStatus").toString();
-//    int memberCount = (int) map.get("memberCount");
-//    if (memberCount > 14) {
-//      failObj.put("type", "fail");
-//      failObj.put("failReason", "fullBang");
-//      failObj.put("failMessage", "최대 인원이라 참가가 불가능합니다.");
-//      session.sendMessage(new TextMessage(failObj.toJSONString()));
-//      return;
-//    } else if (roomStatus.equals("start")) {
-//      failObj.put("type", "fail");
-//      failObj.put("failReason", "joinFailed");
-//      failObj.put("failMessage", "이미 시작 된 방입니다.");
-//      session.sendMessage(new TextMessage(failObj.toJSONString()));
-//      return;
-//    } else if (memberList.size() > 0 && memberList.get(userName) != null) {
-//      failObj.put("type", "fail");
-//      failObj.put("failReason", "nameExist");
-//      failObj.put("failMessage", "중복 된 이름이 있습니다.");
-//      session.sendMessage(new TextMessage(failObj.toJSONString()));
-//      return;
-//    } else if (memberCount == 0) {
-//      map.put("adminSession", session.getId());
-//      obj.put("isAdmin", true);
-//    }
-//    listObj.put("type", "memberList");
-//    listObj.put("newMemberName", userName);
-//    memberList.put(userName, session.getId());
-//    List<String> memberNames = new ArrayList<>(memberList.keySet());
-//    listObj.put("memberList", memberNames);
-//    map.put(session.getId(), session);
-//    map.put(session.getId() + "_status", "alive");
-//    map.put("memberList", memberList);
-//    map.put("memberCount", ++memberCount);
-//  } else {
-//    JSONObject failObj = new JSONObject();
-//    failObj.put("type", "fail");
-//    failObj.put("failReason", "deletedRoom");
-//    failObj.put("failMessage", "존재하지 않는 방입니다.");
-//    session.sendMessage(new TextMessage(failObj.toJSONString()));
-//    return;
-////      HashMap<String, Object> map = new HashMap<>();
-////      HashMap<String, String> memberList = new HashMap<>();
-////      memberList.put(userName,session.getId());
-////      map.put("roomId", roomId);
-////      map.put(session.getId(), session);
-////      map.put("memberList", memberList);
-////      map.put("adminSession", session.getId());
-////      map.put("memberCount", 1);
-////      obj.put("isAdmin", true);
-////      rls.add(map);
-//  }
-//
-//  //세션등록이 끝나면 발급받은 세션ID값의 메시지를 발송한다.
-//    obj.put("type", "getId");
-//    obj.put("sessionId", session.getId());
-//    session.sendMessage(new TextMessage(obj.toJSONString()));
-//  messageSend(roomId,listObj);
-//
-//
-//}
-
   @Override
   public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
     //소켓 종료
@@ -370,67 +273,6 @@ public class SocketHandler extends TextWebSocketHandler {
     super.afterConnectionClosed(session, status);
   }
 
-//  @Override
-//  public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-//    //소켓 종료
-//    //sessionMap.remove(session.getId());
-//    JSONObject obj = new JSONObject();
-//    JSONObject adminObj = new JSONObject();
-//    //소켓 종료
-//    if (rls.size() > 0) { //소켓이 종료되면 해당 세션값들을 찾아서 지운다.
-//      for (int i = 0; i < rls.size(); i++) {
-//        if (rls.get(i).get(session.getId()) != null) {
-//          String memberId = session.getId();
-//          Member memberInfo = memberDao.selectMemberInfo(memberId);
-//          HashMap<String, Object> map = rls.get(i);
-//          int memberCount = (int) map.get("memberCount");
-//          String roomId = (String) map.get("roomId");
-//          HashMap<String, String> memberList = (HashMap<String, String>) map.get("memberList");
-//          Boolean isAdmin = checkAdmin((String) map.get("adminSession"), session.getId());
-//          String outMemberName = (String) getKey(memberList, session.getId());
-//          memberList.remove(outMemberName);
-//          map.put("memberCount", --memberCount);
-//          map.put("memberList", memberList);
-//          Object tempKey = getFirstKey(memberList);
-//          String roomStatus = ObjectUtils.isEmpty(map.get("roomStatus")) == true ? "wait" : map.get("roomStatus").toString();
-//          if (tempKey != null) {
-//            String sessionKey = memberList.get(tempKey);
-//            WebSocketSession wss = (WebSocketSession) map.get(sessionKey);
-//            if (isAdmin && roomStatus.equals("wait")) {
-//              adminObj.put("type", "adminLeft");
-//              adminObj.put("isAdmin", true);
-//              wss.sendMessage(new TextMessage(adminObj.toJSONString()));
-//              map.put("adminSession", sessionKey);
-//            }
-//            map.remove(session.getId());
-//            map.remove(session.getId() + "_status");
-//            obj.put("type", "memberOut");
-//            obj.put("outMemberName", outMemberName);
-//            List<String> memberNames = new ArrayList<>(memberList.keySet());
-//            obj.put("memberList", memberNames);
-//            messageSend(roomId,obj);
-//            rls.set(i, map);
-//          } else {
-//            if (!StringUtils.isEmpty(rls.get(i).get(session.getId()))) {
-//              URL url = new URL("http://localhost:8080/roomDelete/" + rls.get(i).get("roomId"));
-//              HttpURLConnection con = (HttpURLConnection) url.openConnection();
-//              con.setRequestMethod("POST");
-//              int responseCode = con.getResponseCode();
-//              if (responseCode == 200) {
-//                log.info("roomDelete complete!! roomId : {}", rls.get(i).get("roomId"));
-//              } else {
-//                log.info("roomDelete fail!! roomId : {}", rls.get(i).get("roomId"));
-//              }
-//              con.disconnect();
-//              rls.remove(i);
-//            }
-//          }
-//        }
-//      }
-//    }
-//    super.afterConnectionClosed(session, status);
-//  }
-
   public int getRoomCount(String roomId) {
     if (rls.size() > 0) {
       for (int i = 0; i < rls.size(); i++) {
@@ -455,28 +297,6 @@ public class SocketHandler extends TextWebSocketHandler {
     return new HashMap<>();
   }
 
-  public List<String> getMemberNames(String roomId) {
-    if (rls.size() > 0) {
-      for (int i = 0; i < rls.size(); i++) {
-        String getRoomId = (String) rls.get(i).get("roomId");
-        if (getRoomId.equals(roomId)) {
-          HashMap<String, Object> temp = rls.get(i);
-          List<String> memberNameList = new ArrayList<>();
-          HashMap<String, String> memberList = (HashMap<String, String>) rls.get(i).get("memberList");
-          for (String memberName : memberList.keySet()) {
-            String memberId = memberList.get(memberName);
-            Boolean aliveFlag = !StringUtils.isEmpty(temp.get(memberId + "_status")) && temp.get(memberId + "_status").toString().equals("alive");
-            if (aliveFlag) {
-              memberNameList.add(memberName);
-            }
-          }
-          return memberNameList;
-        }
-      }
-    }
-    return new ArrayList<>();
-  }
-
   private static JSONObject jsonToObjectParser(String jsonStr) {
     JSONParser parser = new JSONParser();
     JSONObject obj = null;
@@ -486,29 +306,6 @@ public class SocketHandler extends TextWebSocketHandler {
       e.printStackTrace();
     }
     return obj;
-  }
-
-  public static Object getKey(HashMap<String, String> getHashMap, Object value) {
-    for (Object o : getHashMap.keySet()) {
-      if (getHashMap.get(o).equals(value)) {
-        return o;
-      }
-    }
-    return null;
-  }
-
-  public static Boolean checkAdmin(String adminId, String nowId) {
-    return adminId.equals(nowId);
-  }
-
-
-  public static Object getFirstKey(HashMap<String, String> getHashMap) {
-    for (Object o : getHashMap.keySet()) {
-      if (getHashMap.get(o) != null) {
-        return o;
-      }
-    }
-    return null;
   }
 
   public static void setRoomId(String roomId) { //최초 생성하는 방이라면 방번호와 세션을 추가한다.
@@ -619,8 +416,8 @@ public class SocketHandler extends TextWebSocketHandler {
     return jobList;
   }
 
-  public void getRandomStoreList(String roomId) {
-    List<Store> storeList = lunchEtcDao.selectStoreInfoList();
+  public void getRandomStoreList(String roomId, Target parameterTarget) {
+    List<Store> storeList = lunchEtcDao.selectStoreInfoList(parameterTarget);
     List<Store> suffleList = new ArrayList<>();
     List<Store> resultList = new ArrayList<>();
     int suffleListCount = 0;
@@ -656,41 +453,42 @@ public class SocketHandler extends TextWebSocketHandler {
     messageSend(roomId,sendObj);
   }
 
-  public void cutOffHerHead(String jsonGetRoomId, String userName, Boolean resultEqual) {
+  public void getRandomStoreListExceptWeek(String roomId, String roomName) {
+    Target parameterTarget = new Target(roomName);
+    List<Store> storeList = lunchEtcDao.selectStoreInfoList(parameterTarget);
+    List<Store> suffleList = new ArrayList<>();
+    List<Store> resultList = new ArrayList<>();
+    int suffleListCount = 0;
+    int suffleCount = (int) ((Math.random() * 10) + 1);
+
+    for (Store tempStore : storeList) {
+      for (int i = 0; i < tempStore.getStoreWeight(); i++) {
+        suffleList.add(tempStore);
+      }
+    }
+
+    for (int i = 0; i < suffleCount; i++) {
+      Collections.shuffle(suffleList);
+    }
+
+    while (resultList.size() < 5) {
+      if (!resultList.contains(suffleList.get(suffleListCount))) {
+        resultList.add(suffleList.get(suffleListCount));
+      }
+      suffleListCount++;
+    }
+
+    ObjectMapper mapper = new ObjectMapper();
+    JSONObject sendObj = new JSONObject();
+    sendObj.put("type", "gameStart");
     try {
-      HashMap<String, Object> temp = new HashMap<>();
-      Boolean excecutedFlag = resultEqual;
-      Room roomInfo = roomDao.selectRoomInfo(jsonGetRoomId);
-      Member parameterMember = Member.builder()
-          .memberRoomId(jsonGetRoomId)
-          .memberName(userName)
-          .build();
-      int idx = roomInfo.getSessionIdx();
-      roomDao.roomVoteEnd(jsonGetRoomId);
-      temp.put("voteStatus","end");
-
-      if (idx != -1) {
-        Member memberInfo = memberDao.selectMemberInfoByName(parameterMember);
-        if (StringUtils.isEmpty(memberInfo)) {
-          excecutedFlag = true;
-        } else {
-          memberDao.makePlayerZombie(memberInfo.getMemberId());
-        }
-      }
-
-      if (excecutedFlag) {
-        JSONObject sendObj = new JSONObject();
-        sendObj.put("type", "resultEqual");
-        messageSend(jsonGetRoomId, sendObj);
-      } else {
-        JSONObject sendObj = new JSONObject();
-        sendObj.put("type", "excecuteComplete");
-        sendObj.put("memberName", userName);
-        messageSend(jsonGetRoomId, sendObj);
-      }
+      sendObj.put("storeList", mapper.writeValueAsString(resultList));
     } catch (Exception e) {
       e.printStackTrace();
     }
+    //sendObj.put("storeList", resultList);
+
+    messageSend(roomId,sendObj);
   }
 
   public void mafiaKill(String jsonGetRoomId, String storeName, int storeCount) {
