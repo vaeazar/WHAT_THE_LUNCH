@@ -12,10 +12,13 @@ import com.example.mafia.repository.MessageMongoDBRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
@@ -61,6 +64,10 @@ public class SocketHandler extends TextWebSocketHandler {
       String jsonGetType = (String) obj.get("type");
       String jsonGetRoomId = (String) obj.get("roomId");
       String jsonGetSessionId = (String) obj.get("sessionId");
+      SimpleDateFormat timeFormat = new SimpleDateFormat("a hh:mm", Locale.KOREA);
+      Calendar cal = Calendar.getInstance();
+      String nowTime = timeFormat.format(cal.getTime());
+      obj.put("nowTime",nowTime);
       HashMap<String, Object> temp = new HashMap<>();
       Room roomInfo = roomDao.selectRoomInfo(jsonGetRoomId);
       boolean mongoFlag = false;
@@ -85,9 +92,8 @@ public class SocketHandler extends TextWebSocketHandler {
         startObj.put("type", "mafiaVoteStarted");
         messageSend(jsonGetRoomId, startObj);
       } else if (rls.size() > 0) {
+        obj.put("readCount",roomInfo.getRoomCount()-1);
         mongoFlag = true;
-        Member memberInfo = memberDao.selectMemberInfo(jsonGetSessionId);
-        String senderAlive = memberInfo.getMemberStatus();
         temp = rls.get(roomInfo.getSessionIdx());
 
         //해당 방의 세션들만 찾아서 메시지를 발송해준다.
@@ -121,11 +127,6 @@ public class SocketHandler extends TextWebSocketHandler {
         sendData.setRemoteIp(session.getRemoteAddress().toString());
         sendData.setLocalIp(session.getLocalAddress().toString());
         messageMongoDBRepository.insert(sendData);
-      }
-
-      for (String key : sessionMap.keySet()) {
-        WebSocketSession wss = sessionMap.get(key);
-        wss.sendMessage(new TextMessage(obj.toJSONString()));
       }
     } catch (IOException e) {
       e.printStackTrace();
@@ -234,7 +235,9 @@ public class SocketHandler extends TextWebSocketHandler {
     Member memberInfo = memberDao.selectMemberInfo(sessionId);
     //소켓 종료
     if (rls.size() > 0) { //소켓이 종료되면 해당 세션값
-      if (rls.get(memberInfo.getSessionIdx()).get(session.getId()) != null) {
+      if (memberInfo == null) {
+        log.info("already Deleted Member");
+      } else if (rls.get(memberInfo.getSessionIdx()).get(session.getId()) != null) {
         HashMap<String, Object> map = rls.get(memberInfo.getSessionIdx());
         String roomId = memberInfo.getMemberRoomId();
         String memberId = memberInfo.getMemberId();
@@ -491,23 +494,25 @@ public class SocketHandler extends TextWebSocketHandler {
     messageSend(roomId,sendObj);
   }
 
-  public void mafiaKill(String jsonGetRoomId, String storeName, int storeCount) {
+  public void mafiaKill(String jsonGetRoomId, String storeName, int storeCount, String storeMenuUrl) {
     try {
       JSONObject sendObj = new JSONObject();
       sendObj.put("type", "mafiaKillComplete");
       sendObj.put("storeName", storeName);
       sendObj.put("storeCount", storeCount);
+      sendObj.put("storeMenuUrl", storeMenuUrl);
       messageSend(jsonGetRoomId, sendObj);
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
 
-  public void voteComplete(String jsonGetRoomId, int voteCount) {
+  public void voteComplete(String jsonGetRoomId, int voteCount, String memberId) {
     try {
       JSONObject sendObj = new JSONObject();
       sendObj.put("type", "voteComplete");
       sendObj.put("voteCount", voteCount);
+      sendObj.put("memberId", memberId);
       messageSend(jsonGetRoomId, sendObj);
     } catch (Exception e) {
       e.printStackTrace();

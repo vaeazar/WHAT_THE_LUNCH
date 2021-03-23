@@ -358,6 +358,7 @@ public class MainController {
   public @ResponseBody
   String ClickStore(@RequestParam HashMap<Object, Object> params) {
     String roomId = StringUtils.isEmpty(params.get("roomId")) == true ? "" : params.get("roomId").toString();
+    String memberId = StringUtils.isEmpty(params.get("memberId")) == true ? "" : params.get("memberId").toString();
     String storeName = StringUtils.isEmpty(params.get("storeName")) == true ? "" : params.get("storeName").toString();
 
     try {
@@ -376,7 +377,7 @@ public class MainController {
           }
           roomArrayList.get(i).setVotes(votes);
           roomArrayList.get(i).setVoteCount(voteCount);
-          socketHandler.voteComplete(roomId,voteCount);
+          socketHandler.voteComplete(roomId,voteCount,memberId);
           break;
         }
       }
@@ -403,7 +404,7 @@ public class MainController {
         if (!StringUtils.isEmpty(getRoomId) && getRoomId.equals(roomId)) {
           HashMap<String, Integer> votes = roomArrayList.get(i).getVotes();
           if (CollectionUtils.isEmpty(votes)) {
-            socketHandler.mafiaKill(roomId, storeName, storeCount);
+            socketHandler.mafiaKill(roomId, storeName, storeCount, "");
             break;
           }
           Iterator<String> keys = votes.keySet().iterator();
@@ -438,7 +439,7 @@ public class MainController {
           visitLog.setStoreInfo(parameterStore);
           visitLog.setVisitTeam(getRoomName);
           lunchEtcDao.insertVisitLog(visitLog);
-          socketHandler.mafiaKill(roomId, storeName, storeCount);
+          socketHandler.mafiaKill(roomId, storeName, storeCount, parameterStore.getStoreMenuUrl());
           votes = new HashMap<>();
           roomArrayList.get(i).setVotes(votes);
           break;

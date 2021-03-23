@@ -42,7 +42,7 @@
     <div id="yourMsg">
         <table class="inputTable">
             <tr id="uiBtn">
-                <td>메시지</td>
+                <td><input type="checkbox" class="scrollFlag" onclick="changeScroll()" checked>자동 스크롤</td>
                 <td><input id="chatting" class="chatting-input" placeholder="보내실 메시지를 입력하세요."></td>
                 <td><button onclick="send()" id="sendBtn">보내기</button></td>
             </tr>

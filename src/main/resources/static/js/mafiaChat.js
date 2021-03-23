@@ -1,6 +1,8 @@
 var socketVar;
 var jbRandom = Math.random();
 let voteCompFlag = false;
+let staticScrollFlag = true;
+let isFocused = true;
 const testFlag = true;
 var testval1;
 var testval2;
@@ -11,6 +13,8 @@ var testval5;
 document.addEventListener("DOMContentLoaded", function () {
   //checkRefresh();
   wsOpen();
+  window.onfocus = setFocuse();
+  window.onblur = releaseFocuse();
 
   if ( window.history.replaceState ) {
     window.history.replaceState( null, null, 'room' );
@@ -104,7 +108,7 @@ function wsEvt() {
         let chatColor = $('input[name=othersChatColor]:checked').val();
         $("#chating").append(
             "<p class='newMemberJoin'>" + decodeURI(jsonTemp.newMemberName,'UTF-8') + " 님께서 입장하셨습니다.</p>");
-        $("#chating").scrollTop($("#chating")[0].scrollHeight);
+        scrollDown(staticScrollFlag);
         let memberList = jsonTemp.memberList;
         let memberListTag = '';
         memberList.forEach(function(item,index,arr) {
@@ -116,7 +120,7 @@ function wsEvt() {
         let chatColor = $('input[name=othersChatColor]:checked').val();
         $("#chating").append(
             "<p class='newMemberJoin'>" + decodeURI(jsonTemp.outMemberName,'UTF-8') + " 님께서 퇴장하셨습니다.</p>");
-        $("#chating").scrollTop($("#chating")[0].scrollHeight);
+        scrollDown(staticScrollFlag);
         let memberList = jsonTemp.memberList;
         let memberListTag = '';
         memberList.forEach(function(item,index,arr) {
@@ -136,9 +140,13 @@ function wsEvt() {
             "<p class='newMemberJoin' style='color:#ffffff;'>====================================</p>");
         $("#chating").append(
             "<p class='newMemberJoin' style='color:#ffffff;'>투표 결과 : " + decodeURI(jsonTemp.storeName,'UTF-8') + "("+jsonTemp.storeCount+")</p>");
+        if (jsonTemp.storeMenuUrl != '') {
+          $("#chating").append(
+              "<p class='newMemberJoin' style='color:#ffffff;'>메뉴(클릭 시 큰 이미지)</br><img class='storeMenu' onclick='javascript:window.open(\""+jsonTemp.storeMenuUrl+"\")' src='"+jsonTemp.storeMenuUrl+"'></p>");
+        }
         $("#chating").append(
             "<p class='newMemberJoin' style='color:#ffffff;'>====================================</p>");
-        $("#chating").scrollTop($("#chating")[0].scrollHeight);
+        scrollDown(staticScrollFlag);
         $('#modalBtn').remove();
         voteCompFlag = false;
       } else if (jsonTemp.type == "adminLeft") {
@@ -182,7 +190,7 @@ function wsEvt() {
         // commonAjax('/getMafiaList', param, 'post', function () {
         // });
       } else if (jsonTemp.type == 'gameStart') {
-        $('#recommBtn').remove();
+        $('#recommTd').remove();
         let recommMenu = JSON.parse(jsonTemp.storeList);
         let recommHtml = '';
         $("#recommListContainer").html('');
@@ -201,10 +209,10 @@ function wsEvt() {
         });
         $("#recommListContainer").html(recommHtml)
         voteOpen(recommMenu)
-        $("#chating").scrollTop($("#chating")[0].scrollHeight);
+        scrollDown(staticScrollFlag);
         openRecommList();
         let tempHtml = '';
-        tempHtml += '<td><button id="recommBtn" onclick="openRecommList()">추천 목록</button></td>';
+        tempHtml += '<td id="recommTd"><button id="recommBtn" onclick="openRecommList()">추천 목록</button></td>';
         $("#uiBtn2").append(tempHtml);
       } else if (jsonTemp.type == "voteStarted") {
         $('#modalBtn').remove();
@@ -213,11 +221,12 @@ function wsEvt() {
         $("#uiBtn2").append(tempHtml);
         $("#chating").append(
             "<p class='newMemberJoin' style='color:red;'>투표가 시작되었습니다.</p>");
-        $("#chating").scrollTop($("#chating")[0].scrollHeight);
+        scrollDown(staticScrollFlag);
       } else if (jsonTemp.type == "voteComplete") {
         $("#chating").append(
-            "<p class='newMemberJoin' style='color:#abff93;'>" + decodeURI(jsonTemp.voteCount,'UTF-8') + " 명이 투표하였습니다.</p>");
-        $("#chating").scrollTop($("#chating")[0].scrollHeight);
+            "<p class='newMemberJoin' style='color:#abff93;'>" + decodeURI(jsonTemp.memberId,'UTF-8') + "님이 투표하였습니다."
+            + "</br>"+jsonTemp.voteCount+" 명 투표 완료</p>");
+        scrollDown(staticScrollFlag);
       } else if (jsonTemp.type == "fail") {
         if (jsonTemp.failReason == 'nameExist') {
           $("#yourMsg").hide();
@@ -275,14 +284,50 @@ function wsEvt() {
       } else if (jsonTemp.type == "message") {
         if (jsonTemp.sessionId == $("#sessionId").val()) {
           let chatColor = $('input[name=myChatColor]:checked').val();
-          $("#chating").append("<p class='me' style='color:"+chatColor+"\;'>" + jsonTemp.msg + "</p>");
-          $("#chating").scrollTop($("#chating")[0].scrollHeight);
+          if (isFocused) {
+            $("#chating").append("<p class='me' style='color:"+chatColor+"\;'>" + jsonTemp.msg
+                + "</br><span class='chatTime'>"+jsonTemp.nowTime+"</span><span class='newMessage readCount'>"+jsonTemp.readCount-1+"</span></p>");
+          } else {
+            $("#chating").append("<p class='me' style='color:"+chatColor+"\;'>" + jsonTemp.msg
+                + "</br><span class='chatTime'>"+jsonTemp.nowTime+"</span><span class='newMessage readCount'>"+jsonTemp.readCount+"</span></p>");
+          }
+          scrollDownChatMessage(staticScrollFlag);
         } else {
           let chatColor = $('input[name=othersChatColor]:checked').val();
-          $("#chating").append(
-              "<p class='others' style='color:"+chatColor+"\;'>" + jsonTemp.userId + " :" + jsonTemp.msg
-              + "</p>");
-          $("#chating").scrollTop($("#chating")[0].scrollHeight);
+          if (isFocused) {
+            $("#chating").append(
+                "<p class='others' style='color:"+chatColor+"\;'>" + jsonTemp.userId + " :" + jsonTemp.msg
+                + "</br><span class='chatTime'>"+jsonTemp.nowTime+"</span> <span class='newMessage readCount'>"+jsonTemp.readCount-1+"</span></p>");
+          } else {
+            $("#chating").append(
+                "<p class='others' style='color:"+chatColor+"\;'>" + jsonTemp.userId + " :" + jsonTemp.msg
+                + "</br><span class='chatTime'>"+jsonTemp.nowTime+"</span> <span class='newMessage readCount'>"+jsonTemp.readCount+"</span></p>");
+          }
+          scrollDownChatMessage(staticScrollFlag);
+        }
+      } else if (jsonTemp.type == "otherRead") {
+        if (jsonTemp.sessionId == $("#sessionId").val()) {
+          let chatColor = $('input[name=myChatColor]:checked').val();
+          if (isFocused) {
+            $("#chating").append("<p class='me' style='color:"+chatColor+"\;'>" + jsonTemp.msg
+                + "</br><span class='chatTime'>"+jsonTemp.nowTime+"</span><span class='newMessage readCount'>"+jsonTemp.readCount-1+"</span></p>");
+          } else {
+            $("#chating").append("<p class='me' style='color:"+chatColor+"\;'>" + jsonTemp.msg
+                + "</br><span class='chatTime'>"+jsonTemp.nowTime+"</span><span class='newMessage readCount'>"+jsonTemp.readCount+"</span></p>");
+          }
+          scrollDownChatMessage(staticScrollFlag);
+        } else {
+          let chatColor = $('input[name=othersChatColor]:checked').val();
+          if (isFocused) {
+            $("#chating").append(
+                "<p class='others' style='color:"+chatColor+"\;'>" + jsonTemp.userId + " :" + jsonTemp.msg
+                + "</br><span class='chatTime'>"+jsonTemp.nowTime+"</span> <span class='newMessage readCount'>"+jsonTemp.readCount-1+"</span></p>");
+          } else {
+            $("#chating").append(
+                "<p class='others' style='color:"+chatColor+"\;'>" + jsonTemp.userId + " :" + jsonTemp.msg
+                + "</br><span class='chatTime'>"+jsonTemp.nowTime+"</span> <span class='newMessage readCount'>"+jsonTemp.readCount+"</span></p>");
+          }
+          scrollDownChatMessage(staticScrollFlag);
         }
       } else if (jsonTemp.type == "mafia") {
         if ($('#myJob').val() != 'mafia') {
@@ -290,12 +335,12 @@ function wsEvt() {
         }
         if (jsonTemp.sessionId == $("#sessionId").val()) {
           $("#chating").append("<p class='me-mafia'>" + jsonTemp.msg + "</p>");
-          $("#chating").scrollTop($("#chating")[0].scrollHeight);
+          scrollDown(staticScrollFlag);
         } else {
           $("#chating").append(
               "<p class='others-mafia'>(마피아)" + jsonTemp.userId + " :"
               + jsonTemp.msg + "</p>");
-          $("#chating").scrollTop($("#chating")[0].scrollHeight);
+          scrollDown(staticScrollFlag);
         }
       } else if (jsonTemp.type == "showyourjob"){
         console.log(jsonTemp.msg);
@@ -630,6 +675,7 @@ function mafiaVoteOpen() {
 function clickStore(storeName) {
   let param = {
     roomId : $('#roomId').val(),
+    memberId : $('#userId').val(),
     storeName : storeName
   };
   let btnHtml = '';
@@ -681,4 +727,34 @@ function tempMafiaKillBtn() {
 
 function cleanChatSpace() {
   $('#chating').html('');
+}
+
+function scrollDown(scrollFlag) {
+  if (scrollFlag) {
+    $("#chating").scrollTop($("#chating")[0].scrollHeight);
+  }
+}
+
+function scrollDownChatMessage(scrollFlag) {
+  if (scrollFlag) {
+    $("#chating").scrollTop($("#chating")[0].scrollHeight);
+  }
+}
+
+function changeScroll() {
+  if ($("input[class=scrollFlag]:checked").length == 0) {
+    staticScrollFlag = false;
+  } else {
+    staticScrollFlag = true;
+  }
+}
+
+function setFocuse() {
+  isFocused = true;
+  staticScrollFlag = true;
+}
+
+function releaseFocuse() {
+  isFocused = false;
+  staticScrollFlag = false;
 }

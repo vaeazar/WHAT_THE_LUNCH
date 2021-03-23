@@ -19,5 +19,6 @@ public class Store implements Serializable {
   String storePaycoYN;
   String storeComment;
   String storeNaver;
+  String storeMenuUrl;
   String regDttm;
 }

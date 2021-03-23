@@ -38,6 +38,9 @@
         ,STORE_KIND2 AS storeKind2
         ,STORE_KIND3 AS storeKind3
         ,STORE_PAYCO_YN AS storePaycoYN
+        ,STORE_COMMENT AS storeComment
+        ,STORE_NAVER AS storeNaver
+        ,STORE_MENU_URL AS storeMenuUrl
         ,REG_DTTM AS regDttm
         FROM STORE
         WHERE STORE_CODE=#{storeCode}
@@ -54,6 +57,9 @@
         ,STORE_KIND2 AS storeKind2
         ,STORE_KIND3 AS storeKind3
         ,STORE_PAYCO_YN AS storePaycoYN
+        ,STORE_COMMENT AS storeComment
+        ,STORE_NAVER AS storeNaver
+        ,STORE_MENU_URL AS storeMenuUrl
         ,REG_DTTM AS regDttm
         FROM STORE
         WHERE STORE_NAME=#{storeName}
@@ -72,6 +78,7 @@
         ,STORE_PAYCO_YN AS storePaycoYN
         ,STORE_COMMENT AS storeComment
         ,STORE_NAVER AS storeNaver
+        ,STORE_MENU_URL AS storeMenuUrl
         ,REG_DTTM AS regDttm
         FROM STORE
         WHERE 1=1
@@ -111,10 +118,14 @@
         ,STORE_WEIGHT AS storeWeight
         ,STORE_WEIGHT_COUNT AS storeWeightCount
         ,STORE_DELIVERY_YN AS storeDeliveryYN
-        ,STORE_KIND AS storeKind
+        ,STORE_NATION AS storeNation
+        ,STORE_KIND1 AS storeKind1
+        ,STORE_KIND2 AS storeKind2
+        ,STORE_KIND3 AS storeKind3
         ,STORE_PAYCO_YN AS storePaycoYN
         ,STORE_COMMENT AS storeComment
         ,STORE_NAVER AS storeNaver
+        ,STORE_MENU_URL AS storeMenuUrl
         ,REG_DTTM AS regDttm
         FROM STORE
         WHERE
