@@ -72,6 +72,10 @@ public class MemberDao {
         return sqlSession.selectList(NAMESPACE + "selectMemberNames", memberRoomId);
     }
 
+    public List<String> selectMemberNamesExceptSender(Member member) {
+        return sqlSession.selectList(NAMESPACE + "selectMemberNamesExceptSender", member);
+    }
+
     public List<String> selectAliveMemberNames(String memberRoomId) {
         return sqlSession.selectList(NAMESPACE + "selectAliveMemberNames", memberRoomId);
     }

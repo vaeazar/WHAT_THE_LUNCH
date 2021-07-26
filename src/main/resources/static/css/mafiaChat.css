@@ -218,3 +218,7 @@
 .recommNaver:focus {
     cursor: pointer;
 }
+
+.newMessage {
+    color : coral;
+}

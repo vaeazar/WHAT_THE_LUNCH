@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -79,6 +80,12 @@ public class SocketHandler extends TextWebSocketHandler {
         JSONObject startObj = new JSONObject();
         startObj.put("type", "roomIsStart");
         messageSend(jsonGetRoomId, startObj);
+      } else if (jsonGetType.equals("thisMemberRead")) {
+        JSONObject startObj = new JSONObject();
+        startObj.put("type", "thisMemberRead");
+        String readMember = obj.get("userId") + "-readCheck";
+        startObj.put("readMember", readMember);
+        messageSend(jsonGetRoomId, startObj);
       } else if (jsonGetType.equals("voteStart")) {
         roomDao.roomVoteStart(jsonGetRoomId);
 
@@ -95,6 +102,15 @@ public class SocketHandler extends TextWebSocketHandler {
         obj.put("readCount",roomInfo.getRoomCount()-1);
         mongoFlag = true;
         temp = rls.get(roomInfo.getSessionIdx());
+        Member member = Member.builder()
+            .memberRoomId(jsonGetRoomId)
+            .memberName(memberDao.selectMemberName(jsonGetSessionId))
+            .build();
+        List<String> memberList = memberDao.selectMemberNamesExceptSender(member);
+        StringBuffer memberNames = new StringBuffer();
+        for (String tempMemberName : memberList) {
+          memberNames.append(tempMemberName + "-readCheck ");
+        }
 
         //해당 방의 세션들만 찾아서 메시지를 발송해준다.
         for (String k : temp.keySet()) {
@@ -113,8 +129,11 @@ public class SocketHandler extends TextWebSocketHandler {
           }
 
           WebSocketSession wss = (WebSocketSession) temp.get(k);
+          obj.put("readCheck",memberNames.toString());
           if (wss != null) {
-            wss.sendMessage(new TextMessage(obj.toJSONString()));
+            synchronized(wss) {
+              wss.sendMessage(new TextMessage(obj.toJSONString()));
+            }
           }
         }
       }
@@ -350,7 +369,9 @@ public class SocketHandler extends TextWebSocketHandler {
 
           WebSocketSession wss = (WebSocketSession) temp.get(k);
           if (wss != null) {
-            wss.sendMessage(new TextMessage(sendObj.toJSONString()));
+            synchronized(wss) {
+              wss.sendMessage(new TextMessage(sendObj.toJSONString()));
+            }
           }
         }
       } else {
@@ -372,7 +393,9 @@ public class SocketHandler extends TextWebSocketHandler {
 
           WebSocketSession wss = (WebSocketSession) temp.get(k);
           if(wss != null) {
-            wss.sendMessage(new TextMessage(sendObj.toJSONString()));
+            synchronized(wss) {
+              wss.sendMessage(new TextMessage(sendObj.toJSONString()));
+            }
           }
         }
       }

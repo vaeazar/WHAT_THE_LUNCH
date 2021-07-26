@@ -86,6 +86,17 @@
         AND MEMBER_STATUS = 'alive'
         ORDER BY NO ASC
     </select>
+    <select id="selectMemberNamesExceptSender" parameterType="com.example.mafia.domain.Member" resultType="String">
+        <![CDATA[
+        SELECT
+        MEMBER_NAME AS memberName
+        FROM member
+        WHERE MEMBER_ROOM_ID=#{memberRoomId}
+        AND MEMBER_NAME<>#{memberName}
+        AND MEMBER_STATUS = 'alive'
+        ORDER BY NO ASC
+        ]]>
+    </select>
     <select id="selectAliveMemberNamesByJob" parameterType="com.example.mafia.domain.Member" resultType="hashmap">
         SELECT
         MEMBER_NAME AS memberName

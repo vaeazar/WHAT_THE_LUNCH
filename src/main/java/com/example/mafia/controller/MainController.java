@@ -10,11 +10,11 @@ import com.example.mafia.domain.Target;
 import com.example.mafia.domain.VisitLog;
 import com.example.mafia.handler.SocketHandler;
 import org.json.simple.JSONObject;
+import org.junit.platform.commons.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -106,7 +106,7 @@ public class MainController {
       mv.setViewName("room");
       return mv;
     }
-    if(roomName != null && !roomName.trim().equals("")) {
+    if(StringUtils.isNotBlank(roomName)) {
       Room room = new Room();
       room.setRoomNumber(0);
       room.setRoomName(roomName);
@@ -177,14 +177,18 @@ public class MainController {
     String nation = String.valueOf(params.get("nation"));
     String kind = String.valueOf(params.get("kind"));
 
-    String[] nationSplit = nation.split("|");
-    String[] kindSplit = kind.split("|");
+    String[] nationSplit = nation.split("^");
+    String[] kindSplit = kind.split("^");
 
     for (String tempNation : nationSplit) {
-      parameterNationAndKind.add(tempNation);
+      if (!StringUtils.isBlank(tempNation)) {
+        parameterNationAndKind.add(tempNation);
+      }
     }
     for (String tempKind : kindSplit) {
-      parameterNationAndKind.add(tempKind);
+      if (!StringUtils.isBlank(tempKind)) {
+        parameterNationAndKind.add(tempKind);
+      }
     }
 
     Room startedRoom = roomDao.selectRoomInfo(roomId);
@@ -280,7 +284,7 @@ public class MainController {
     try {
       for(int i=0; i< roomArrayList.size(); i++) {
         String getRoomId = roomArrayList.get(i).getRoomId();
-        if (!StringUtils.isEmpty(getRoomId) && getRoomId.equals(roomId)) {
+        if (!StringUtils.isBlank(getRoomId) && getRoomId.equals(roomId)) {
           roomArrayList.remove(i);
           break;
         }
@@ -297,7 +301,7 @@ public class MainController {
     ArrayList<Map<String, String>> jobs = new ArrayList<>();
     for (int i=0;i< roomArrayList.size();i++) {
       String getRoomId = roomArrayList.get(i).getRoomId();
-      if (!StringUtils.isEmpty(getRoomId) && getRoomId.equals(roomId)) {
+      if (!StringUtils.isBlank(getRoomId) && getRoomId.equals(roomId)) {
         jobs = socketHandler.giveJobs(roomId);
       }
     }
@@ -307,7 +311,7 @@ public class MainController {
   @RequestMapping("/getMemberNames")
   public @ResponseBody
   String getMemberNames(@RequestParam HashMap<Object, Object> params) {
-    String roomId = StringUtils.isEmpty(params.get("roomId")) == true ? "" : params.get("roomId").toString();
+    String roomId = StringUtils.isBlank(String.valueOf(params.get("roomId"))) == true ? "" : params.get("roomId").toString();
     JSONObject memberListString = new JSONObject();
 
     if (roomId.equals("")) {
@@ -327,7 +331,7 @@ public class MainController {
   @RequestMapping("/getCivilNames")
   public @ResponseBody
   String getCivilNames(@RequestParam HashMap<Object, Object> params) {
-    String roomId = StringUtils.isEmpty(params.get("roomId")) == true ? "" : params.get("roomId").toString();
+    String roomId = StringUtils.isBlank(String.valueOf(params.get("roomId"))) == true ? "" : params.get("roomId").toString();
     JSONObject memberListString = new JSONObject();
 
     if (roomId.equals("")) {
@@ -348,7 +352,7 @@ public class MainController {
   @RequestMapping("/voteStart")
   public @ResponseBody
   void VoteStart(@RequestParam HashMap<Object, Object> params) {
-    String roomId = StringUtils.isEmpty(params.get("roomId")) == true ? "" : params.get("roomId").toString();
+    String roomId = StringUtils.isBlank(String.valueOf(params.get("roomId"))) == true ? "" : params.get("roomId").toString();
     int sessionIdx = roomDao.selectRoomInfo(roomId).getSessionIdx();
     roomArrayList.get(sessionIdx).setVoteCount(0);
     roomArrayList.get(sessionIdx).setVotes(new HashMap<>());
@@ -357,14 +361,14 @@ public class MainController {
   @RequestMapping("/clickStore")
   public @ResponseBody
   String ClickStore(@RequestParam HashMap<Object, Object> params) {
-    String roomId = StringUtils.isEmpty(params.get("roomId")) == true ? "" : params.get("roomId").toString();
-    String memberId = StringUtils.isEmpty(params.get("memberId")) == true ? "" : params.get("memberId").toString();
-    String storeName = StringUtils.isEmpty(params.get("storeName")) == true ? "" : params.get("storeName").toString();
+    String roomId = StringUtils.isBlank(String.valueOf(params.get("roomId"))) == true ? "" : params.get("roomId").toString();
+    String memberId = StringUtils.isBlank(String.valueOf(params.get("memberId"))) == true ? "" : params.get("memberId").toString();
+    String storeName = StringUtils.isBlank(String.valueOf(params.get("storeName"))) == true ? "" : params.get("storeName").toString();
 
     try {
       for(int i=0; i< roomArrayList.size(); i++) {
         String getRoomId = roomArrayList.get(i).getRoomId();
-        if (!StringUtils.isEmpty(getRoomId) && getRoomId.equals(roomId)) {
+        if (!StringUtils.isBlank(getRoomId) && getRoomId.equals(roomId)) {
           HashMap<String, Integer> votes = roomArrayList.get(i).getVotes();
           int voteCount = roomArrayList.get(i).getVoteCount() + 1;
           if (CollectionUtils.isEmpty(votes)) {
@@ -390,7 +394,7 @@ public class MainController {
   @RequestMapping("/mafiaKill")
   public @ResponseBody
   String mafiaKill(@RequestParam HashMap<Object, Object> params) {
-    String roomId = StringUtils.isEmpty(params.get("roomId")) == true ? "" : params.get("roomId").toString();
+    String roomId = StringUtils.isBlank(String.valueOf(params.get("roomId"))) == true ? "" : params.get("roomId").toString();
     try {
       int storeCount = 0;
       ArrayList<String> equalList = new ArrayList<>();
@@ -401,7 +405,7 @@ public class MainController {
         String getRoomId = roomArrayList.get(i).getRoomId();
         String getRoomName = roomArrayList.get(i).getRoomName();
 
-        if (!StringUtils.isEmpty(getRoomId) && getRoomId.equals(roomId)) {
+        if (!StringUtils.isBlank(getRoomId) && getRoomId.equals(roomId)) {
           HashMap<String, Integer> votes = roomArrayList.get(i).getVotes();
           if (CollectionUtils.isEmpty(votes)) {
             socketHandler.mafiaKill(roomId, storeName, storeCount, "");
@@ -454,13 +458,13 @@ public class MainController {
   @RequestMapping("/mafiaVote")
   public @ResponseBody
   String mafiaVote(@RequestParam HashMap<Object, Object> params) {
-    String roomId = StringUtils.isEmpty(params.get("roomId")) == true ? "" : params.get("roomId").toString();
-    String playerId = StringUtils.isEmpty(params.get("playerId")) == true ? "" : params.get("playerId").toString();
+    String roomId = StringUtils.isBlank(String.valueOf(params.get("roomId"))) == true ? "" : params.get("roomId").toString();
+    String playerId = StringUtils.isBlank(String.valueOf(params.get("playerId"))) == true ? "" : params.get("playerId").toString();
 
     try {
       for(int i=0; i< roomArrayList.size(); i++) {
         String getRoomId = roomArrayList.get(i).getRoomId();
-        if (!StringUtils.isEmpty(getRoomId) && getRoomId.equals(roomId)) {
+        if (!StringUtils.isBlank(getRoomId) && getRoomId.equals(roomId)) {
           HashMap<String, Integer> votes = roomArrayList.get(i).getVotes();
           if (CollectionUtils.isEmpty(votes)) {
             votes = new HashMap<>();

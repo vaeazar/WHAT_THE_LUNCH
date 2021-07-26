@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Chating</title>
+    <title>(0)Chating</title>
     <link rel="stylesheet" href="/css/mafiaChat.css">
     <script src="/js/mafiaChat.js"></script>
     <script src="/js/gamePlay.js"></script>
